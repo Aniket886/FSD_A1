@@ -1,0 +1,24 @@
+config:
+  target: "{{ $processEnvironment.API_BASE_URL }}"
+  phases:
+    - duration: 20
+      arrivalRate: 20
+      rampTo: 100
+      maxVusers: 100
+      name: "Ramp to 100 concurrent virtual users"
+    - duration: 60
+      arrivalRate: 100
+      maxVusers: 100
+      name: "Sustain 100 concurrent virtual users"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+scenarios:
+  - name: "Paginated list and ISBN search"
+    flow:
+      - get:
+          url: "/health"
+      - get:
+          url: "/api/books?page=1&limit=10"
+      - get:
+          url: "/api/books?isbn=9780132350884"

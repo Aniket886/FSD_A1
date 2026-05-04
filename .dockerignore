@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+coverage
+.git
+.github
+.env
+artillery/*.json
+artillery/*.html
+README.md

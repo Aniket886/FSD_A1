@@ -1,0 +1,287 @@
+{
+  "info": {
+    "name": "Library Book Management API - Team 1",
+    "description": "Postman collection with working requests for author/category setup, book CRUD, pagination, and ISBN search.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "apiKey",
+      "value": "change-this-secret-for-write-requests"
+    },
+    {
+      "key": "authorId",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": ""
+    },
+    {
+      "key": "bookId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Health check returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Create Author",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Robert C. Martin\",\n  \"biography\": \"Software engineering author.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/authors/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "authors", "register"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Author created', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = pm.response.json();",
+              "if (body.data && body.data._id) { pm.collectionVariables.set('authorId', body.data._id); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Create Category",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Software Engineering\",\n  \"description\": \"Books about software design and development.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/categories/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "categories", "register"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Category created', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = pm.response.json();",
+              "if (body.data && body.data._id) { pm.collectionVariables.set('categoryId', body.data._id); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Register Book",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Clean Code\",\n  \"isbn\": \"9780132350884\",\n  \"authorId\": \"{{authorId}}\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"publishedYear\": 2008,\n  \"copiesAvailable\": 7,\n  \"description\": \"A handbook of agile software craftsmanship.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/books/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "books", "register"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Book registered', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = pm.response.json();",
+              "if (body.data && body.data._id) { pm.collectionVariables.set('bookId', body.data._id); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. List Books Paginated with ISBN Search",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/books?page=1&limit=10&isbn=9780132350884",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "books"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "isbn",
+              "value": "9780132350884"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Paginated ISBN search works', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.page).to.eql(1);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Update Book",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"copiesAvailable\": 9\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/books/{{bookId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "books", "{{bookId}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Book updated', function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().data.copiesAvailable).to.eql(9);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Delete Book",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/books/{{bookId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "books", "{{bookId}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Book deleted', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}
